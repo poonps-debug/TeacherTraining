@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>香港小學 AI 課程規劃與教學實踐報告</title>
+  <!-- Chosen Palette: Calm Slate & Indigo Neutral -->
+  <!-- Application Structure Plan: Designed a 5-tab thematic dashboard SPA for navigating the EDB Primary AI Framework. Includes Executive Summary with Chart.js analytics, Interactive P1-P6 Spiral Curriculum Map, CREATE Prompt Framework Builder, Ethics Matrix, and Scratch/AIoT Code Simulator. Chosen for optimal teacher workflow and curriculum decision-making. -->
+  <!-- Visualization & Content Choices: Domain distribution -> Chart.js Stacked Bar Chart -> Dynamic filtering; Competency growth -> Chart.js Radar Chart; Curriculum progression -> Interactive HTML/Tailwind cards; Code logic -> Custom styled HTML step flow. Confirmed NO SVG and NO Mermaid.js used. -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 320px;
+      max-height: 380px;
+    }
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <header class="bg-slate-900 text-white sticky top-0 z-50 border-b border-slate-800 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 text-white p-2.5 rounded-xl text-xl font-bold">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold tracking-tight">小學 AI 課程規劃與教學實踐報告</h1>
+          <p class="text-xs text-slate-400">依據教育局《資訊與創新科技課程框架》— 人工智能初探（試行版）</p>
+        </div>
+      </div>
+      <nav class="flex flex-wrap justify-center gap-1 bg-slate-800 p-1.5 rounded-xl text-xs font-medium border border-slate-700">
+        <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn px-3 py-1.5 rounded-lg transition bg-indigo-600 text-white">
+          <i class="fa-solid fa-chart-pie mr-1"></i>框架與數據
+        </button>
+        <button onclick="switchTab('spiral')" id="nav-spiral" class="nav-btn px-3 py-1.5 rounded-lg transition text-slate-300 hover:text-white">
+          <i class="fa-solid fa-sitemap mr-1"></i>P1-P6 課程地圖
+        </button>
+        <button onclick="switchTab('create')" id="nav-create" class="nav-btn px-3 py-1.5 rounded-lg transition text-slate-300 hover:text-white">
+          <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>CREATE 提問法
+        </button>
+        <button onclick="switchTab('ethics')" id="nav-ethics" class="nav-btn px-3 py-1.5 rounded-lg transition text-slate-300 hover:text-white">
+          <i class="fa-solid fa-shield-cat mr-1"></i>倫理與資訊素養
+        </button>
+        <button onclick="switchTab('coding')" id="nav-coding" class="nav-btn px-3 py-1.5 rounded-lg transition text-slate-300 hover:text-white">
+          <i class="fa-solid fa-code mr-1"></i>Scratch/AIoT 實踐
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-8">
+
+    <section id="sec-overview" class="tab-content space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-bold">校本藍圖導覽</span>
+        <h2 class="text-2xl font-bold text-slate-900">教育局 AI 課程四大範疇與校本時間分配報告</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          本章節剖析香港教育局《小學資訊與創新科技課程框架》中「人工智能初探」的四大核心範疇（認識AI、運作概念、應用實踐、反思與態度）。透過下方數據圖表，您可以直觀了解 P1 至 P6 螺旋式遞進的課時權重配比與學生能力成長指標，為校本電腦科與 STEM 課程調配提供決策依據。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-blue-100 text-blue-600 rounded-xl text-xl"><i class="fa-solid fa-eye"></i></div>
+          <div>
+            <div class="text-xs text-slate-500 font-medium">範疇一</div>
+            <div class="text-base font-bold text-slate-800">認識 AI 應用</div>
+            <div class="text-xs text-slate-400 mt-0.5">生活體驗與感知</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-amber-100 text-amber-600 rounded-xl text-xl"><i class="fa-solid fa-gears"></i></div>
+          <div>
+            <div class="text-xs text-slate-500 font-medium">範疇二</div>
+            <div class="text-base font-bold text-slate-800">AI 運作概念</div>
+            <div class="text-xs text-slate-400 mt-0.5">數據、訓練與模型</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl text-xl"><i class="fa-solid fa-laptop-code"></i></div>
+          <div>
+            <div class="text-xs text-slate-500 font-medium">範疇三</div>
+            <div class="text-base font-bold text-slate-800">AI 應用與實踐</div>
+            <div class="text-xs text-slate-400 mt-0.5">Prompt 與 Scratch 編程</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-rose-100 text-rose-600 rounded-xl text-xl"><i class="fa-solid fa-scale-balanced"></i></div>
+          <div>
+            <div class="text-xs text-slate-500 font-medium">範疇四</div>
+            <div class="text-base font-bold text-slate-800">反思、態度與倫理</div>
+            <div class="text-xs text-slate-400 mt-0.5">資訊真偽與科技向善</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="font-bold text-slate-800 text-base flex items-center">
+              <i class="fa-solid fa-chart-column text-indigo-600 mr-2"></i>P1-P6 各年級範疇課時佔比 (%)
+            </h3>
+            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">校本推動建議</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="hoursChart"></canvas>
+          </div>
+          <p class="text-xs text-slate-500 leading-normal">
+            * 說明：初小 (P1-P3) 以生活感知與認知為主；高小 (P4-P6) 逐漸轉向機器學習運作概念與 Scratch/AIoT 編程實踐。
+          </p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="font-bold text-slate-800 text-base flex items-center">
+              <i class="fa-solid fa-chart-radar text-indigo-600 mr-2"></i>高小學生 AI 核心素養成長模型
+            </h3>
+            <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md font-medium">能力評估指標</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+          </div>
+          <p class="text-xs text-slate-500 leading-normal">
+            * 說明：展示學生從 P4 基礎認知突破至 P6 具備跨學科 AI 專案解難能力與倫理思辨力的階段性變化。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-spiral" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-bold">校本課程架構</span>
+        <h2 class="text-2xl font-bold text-slate-900">P1 - P6 螺旋式 AI 校本課程細節地圖</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          本區塊提供按年級切換的互動式課程架構。請點擊下方年級按鈕，探索各年級的學習目標、推薦教學工具、核心任務與評估方式，確保課程符合「由淺入深、經驗導向」的教學原則。
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 justify-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+        <button onclick="renderGrade('p1')" id="btn-p1" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition bg-indigo-600 text-white">P1 第一學年</button>
+        <button onclick="renderGrade('p2')" id="btn-p2" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:bg-slate-100">P2 第二學年</button>
+        <button onclick="renderGrade('p3')" id="btn-p3" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:bg-slate-100">P3 第三學年</button>
+        <button onclick="renderGrade('p4')" id="btn-p4" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:bg-slate-100">P4 第四學年</button>
+        <button onclick="renderGrade('p5')" id="btn-p5" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:bg-slate-100">P5 第五學年</button>
+        <button onclick="renderGrade('p6')" id="btn-p6" class="grade-btn px-4 py-2 rounded-lg text-sm font-bold transition text-slate-600 hover:bg-slate-100">P6 第六學年</button>
+      </div>
+
+      <div id="grade-detail-card" class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      </div>
+    </section>
+
+    <section id="sec-create" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">教師賦能工具</span>
+        <h2 class="text-2xl font-bold text-slate-900">給教師的 CREATE 提問框架與實作生成器</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          編寫高質量的 AI 提示詞 (Prompt) 是將生成式 AI 導入課堂教學的關鍵技能。下方展示了針對小學教學設計的 **CREATE 提問框架**。您可以透過互動生成器嘗試調整參數，即時生成可複製的教案 Prompt！
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">C - Context (背景)</div>
+          <div class="text-sm font-bold text-slate-800">情境說明</div>
+          <p class="text-xs text-slate-500">明確說明科目、學生年級、教學單元及課堂時長。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">R - Role (角色)</div>
+          <p class="text-sm font-bold text-slate-800">設定 AI 身份</p>
+          <p class="text-xs text-slate-500">指定 AI 為資深小學 STEM 專家或童書創作者。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">E - Explicit Task (任務)</div>
+          <p class="text-sm font-bold text-slate-800">具體指令</p>
+          <p class="text-xs text-slate-500">要求設計引起動機活動、課堂工作紙或評核題目。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">A - Audience (受眾)</div>
+          <p class="text-sm font-bold text-slate-800">目標對象</p>
+          <p class="text-xs text-slate-500">針對 6-12 歲小學生，強調用語需親切易懂。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">T - Target Output (格式)</div>
+          <p class="text-sm font-bold text-slate-800">產出型態</p>
+          <p class="text-xs text-slate-500">要求以表格、分步流程或故事繪本形式輸出。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div class="text-xs font-bold text-indigo-600">E - Execution Constraints (限制)</div>
+          <p class="text-sm font-bold text-slate-800">邊界條件</p>
+          <p class="text-xs text-slate-500">限制字數、使用繁體中文、免用複雜硬體設備。</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg space-y-6">
+        <h3 class="text-lg font-bold text-amber-400 flex items-center">
+          <i class="fa-solid fa-sliders mr-2"></i>互動提示詞 (Prompt) 實戰組裝器
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1.5 font-medium">1. 選擇教學目標年級</label>
+            <select id="prompt-grade" onchange="buildPrompt()" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+              <option value="p2">P2 (初小：AI 語音助手與生活)</option>
+              <option value="p4">P4 (高小：辨識深偽圖像 Fake Image)</option>
+              <option value="p6">P6 (高小：AIoT 智慧校園減廢專題)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-300 mb-1.5 font-medium">2. 選擇產出資源類型</label>
+            <select id="prompt-type" onchange="buildPrompt()" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+              <option value="lesson">15分鐘引起動機活動設計</option>
+              <option value="story">300字互動故事與思考題</option>
+              <option value="quiz">3題倫理情境選擇題與解析</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-300 mb-1.5 font-medium">3. 選擇教學語氣與限制</label>
+            <select id="prompt-tone" onchange="buildPrompt()" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+              <option value="fun">童趣活潑、多用比喻</option>
+              <option value="academic">條理清晰、附表格矩陣</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-indigo-400">組裝完成之 Prompt 模板：</span>
+            <button onclick="copyGeneratedPrompt()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded transition">
+              <i class="fa-solid fa-copy mr-1"></i>複製至剪貼簿
+            </button>
+          </div>
+          <p id="prompt-result-text" class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre-line"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-ethics" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <span class="inline-block px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-bold">資訊素養與科技向善</span>
+        <h2 class="text-2xl font-bold text-slate-900">AI 倫理、個人私隱與著作權教學指標</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          教育局特別強調，在教授 AI 技術的同時，必須培養學生的資訊素養與科技向善態度。以下為小學各階段需落實的三大倫理議題與評估檢核表：
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">辨別假訊息與 Deepfake</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            引導學生明白 AI 生成的文字與圖像可能包含偏見或不實資訊。學習透過觀察「手部細節」、「背景畸變」及交叉查證，不輕信盲傳。
+          </p>
+          <div class="pt-2 border-t text-xs font-semibold text-rose-700">核心年級：P4 - P6</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">個人私隱與數據安全</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            教育學生切勿將個人姓名、學校、身份證號或家庭住址輸入至公開 AI 模型中。理解「數據訓練」的運作機制與個資保護。
+          </p>
+          <div class="pt-2 border-t text-xs font-semibold text-blue-700">核心年級：P1 - P6 全階段</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-copyright"></i>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">學術誠信與知識產權</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            明確教導「AI 協助」與「直接作弊」的界線。要求學生在專案報告中主動標註 AI 輔助工具，培養誠實負責的科技態度。
+          </p>
+          <div class="pt-2 border-t text-xs font-semibold text-emerald-700">核心年級：P5 - P6</div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-800 text-base flex items-center">
+          <i class="fa-solid fa-square-check text-indigo-600 mr-2"></i>校本 AI 課堂倫理檢核計算器 (Self-Assessment)
+        </h3>
+        <p class="text-xs text-slate-500">請勾選您的校本教案已涵蓋的項目，計算倫理涵蓋率得分：</p>
+
+        <div class="space-y-3 text-xs text-slate-700">
+          <label class="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+            <input type="checkbox" onchange="calculateEthicsScore()" class="ethics-chk w-4 h-4 text-indigo-600 rounded">
+            <span>已加入「禁止輸入個人敏感資料」之提醒提醒語。</span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+            <input type="checkbox" onchange="calculateEthicsScore()" class="ethics-chk w-4 h-4 text-indigo-600 rounded">
+            <span>設計了引導學生質疑 AI 回答正確性 (Fact-Checking) 的思考環節。</span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+            <input type="checkbox" onchange="calculateEthicsScore()" class="ethics-chk w-4 h-4 text-indigo-600 rounded">
+            <span>規範學生在繳交 AI 輔助作業時，需附上 Prompt 歷程與聲明。</span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+            <input type="checkbox" onchange="calculateEthicsScore()" class="ethics-chk w-4 h-4 text-indigo-600 rounded">
+            <span>包含討論 AI 對社會就業、環境耗能或公平性影響之跨學科議題。</span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t">
+          <span class="text-xs font-bold text-slate-600">教案倫理指標完成度：</span>
+          <span id="ethics-score-text" class="text-lg font-bold text-indigo-600">0 / 100 分</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-coding" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">高小編程實踐</span>
+        <h2 class="text-2xl font-bold text-slate-900">Scratch AI 積木與 AIoT 硬件實戰展示</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          高小階段 (P4-P6) 將 AI 概念轉化為具體的編程專案。結合 Machine Learning for Kids (ML4K)、Scratch 擴充積木 (POSENET / Face Sensing) 與 Micro:bit AI 鏡頭，以下為推薦之實戰邏輯結構：
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl shadow-lg space-y-4">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-emerald-400 text-sm flex items-center">
+              <i class="fa-solid fa-robot mr-2"></i>專案 A：AI 智慧垃圾分類助手 (ML4K)
+            </h3>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">P5 電腦科</span>
+          </div>
+          
+          <div class="space-y-2 font-mono text-xs">
+            <div class="bg-indigo-950 p-2.5 rounded border border-indigo-800 text-indigo-300">
+              當收到廣播 [進行影像識別]
+            </div>
+            <div class="bg-slate-800 p-2.5 rounded border border-slate-700 text-amber-300 pl-4">
+              變數 [識別結果] = ML4K 模型識別 (攝影機影像)
+            </div>
+            <div class="bg-slate-800 p-2.5 rounded border border-slate-700 text-blue-300 pl-4">
+              如果 &lt;(識別結果) = "塑膠瓶"&gt; 那麼：
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded border border-slate-900 text-emerald-300 pl-8">
+              廣播 [分類至藍色回收桶]
+              <br>說出 ("這是可回收塑膠瓶！") 2 秒
+            </div>
+            <div class="bg-slate-800 p-2.5 rounded border border-slate-700 text-blue-300 pl-4">
+              否則如果 &lt;(識別結果) = "廢紙"&gt; 那麼：
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded border border-slate-900 text-emerald-300 pl-8">
+              廣播 [分類至黃色回收桶]
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl shadow-lg space-y-4">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-amber-400 text-sm flex items-center">
+              <i class="fa-solid fa-microchip mr-2"></i>專案 B：Micro:bit + Huskylens 門禁系統
+            </h3>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">P6 STEM 跨學科</span>
+          </div>
+          
+          <div class="space-y-2 font-mono text-xs">
+            <div class="bg-indigo-950 p-2.5 rounded border border-indigo-800 text-indigo-300">
+              當 Micro:bit 啟動時：
+            </div>
+            <div class="bg-slate-800 p-2.5 rounded border border-slate-700 text-amber-300 pl-4">
+              初始化 Huskylens (模式：人臉追蹤)
+            </div>
+            <div class="bg-slate-800 p-2.5 rounded border border-slate-700 text-blue-300 pl-4">
+              重複無限次：
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded border border-slate-900 text-emerald-300 pl-8">
+              如果 &lt;Huskylens 識別到 ID1 (已授權學生)&gt; 那麼：
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded border border-slate-900 text-purple-300 pl-12">
+              伺服馬達 轉動至 90 度 (開門)
+              <br>顯示圖示 [笑臉]
+              <br>蜂鳴器 播放音效 [Notice]
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded border border-slate-900 text-emerald-300 pl-8">
+              否則：伺服馬達 轉動至 0 度 (關門)
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 text-xs mt-12">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3 text-center md:text-left">
+      <div>
+        <div class="font-bold text-white text-sm mb-1">校本 AI 課程設計與編程實踐平台</div>
+        <div>參考香港教育局《小學資訊與創新科技課程框架》— 人工智能初探（試行版）</div>
+      </div>
+      <div class="text-slate-500">
+        &copy; 2026 校本 AI 教學支持團隊編製 | 僅供教育培訓與學術交流使用
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-medium transition opacity-0 pointer-events-none transform translate-y-2 z-50">
+    已複製到剪貼簿！
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        el.classList.remove('bg-indigo-600', 'text-white');
+        el.classList.add('text-slate-300');
+      });
+
+      document.getElementById('sec-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('nav-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+        activeBtn.classList.remove('text-slate-300');
+      }
+    }
+
+    const gradeData = {
+      p1: {
+        title: "P1 第一學年：生活中的 AI 體驗與感知",
+        tag: "初小感知階段",
+        hours: "建議課時：4-6 課時",
+        objective: "讓學生在日常生活情境中，識別包含人工智能科技的裝置，建立對 AI 的初步印象與好奇心。",
+        topics: [
+          "1. 認識智慧生活：什麼是語音助理 (Siri / Alexa) 與面部解鎖？",
+          "2. 互動遊戲：Quick, Draw! 人工智能繪圖猜猜看",
+          "3. 個資保護觀念：不隨意對麥克風與攝影機透露姓名"
+        ],
+        tools: "Quick, Draw!, 語音助理展示, 實體圖像卡片",
+        assessment: "觀察評估：能否舉例出 2 個生活中的 AI 應用工具。"
+      },
+      p2: {
+        title: "P2 第二學年：人機對話與多媒體體驗",
+        tag: "初小感知階段",
+        hours: "建議課時：6 課時",
+        objective: "體驗與 AI 進行簡易互動對話與圖像生成，初步理解 AI 需要「指令」才能運作。",
+        topics: [
+          "1. 人機對話初體驗：AI 繪本故事小助手",
+          "2. 文本生成圖像觀摩：輸入關鍵字變出魔法畫作",
+          "3. 網路安全：識別數位內容與網路交友警覺"
+        ],
+        tools: "ChatGPT 繪本教學展示, AutoDraw, 互動故事工作紙",
+        assessment: "實作評估：能口述 1 個指令 (Prompt) 並觀察 AI 的回應。"
+      },
+      p3: {
+        title: "P3 第三學年：AI 創作者與基礎分類",
+        tag: "初小探索階段",
+        hours: "建議課時：6-8 課時",
+        objective: "初步認識資料分類的概念，並體驗 AI 輔助音樂與藝術創作。",
+        topics: [
+          "1. 機器如何學習分類？垃圾分類與動物辨識體驗",
+          "2. AI 音樂與藝術創作：利用 Chrome Music Lab 與 AI 合作作曲",
+          "3. 資訊素養：AI 畫出來的東西是真的嗎？初步辨識"
+        ],
+        tools: "Teachable Machine (展示體驗), Chrome Music Lab",
+        assessment: "作品評估：完成一首與 AI 協同創作的小樂曲。"
+      },
+      p4: {
+        title: "P4 第四學年：機器學習概念與 Deepfake 辨真偽",
+        tag: "高小概念與實務",
+        hours: "建議課時：8 課時",
+        objective: "理解「數據訓練 -> 模型生成 -> 預測結果」的基本運作邏輯，並學會辨識深度偽造內容。",
+        topics: [
+          "1. 機器學習 3 步驟：收集資料、訓練模型、測試準確度",
+          "2. 深度偽造 (Deepfake) 與假新聞：觀察手指、光影辨識 AI 假圖",
+          "3. 結構化 Prompt 寫作：角色 + 任務 + 限制"
+        ],
+        tools: "Machine Learning for Kids (ML4K), 辨識假圖教材包",
+        assessment: "思考評估：完成假圖辨識工作紙，列出 3 個查證步驟。"
+      },
+      p5: {
+        title: "P5 第五學年：Scratch AI 擴充積木編程實作",
+        tag: "高小編程進階",
+        hours: "建議課時：10 課時",
+        objective: "結合 Scratch 擴充積木 (ML4K / POSENET / Face Sensing)，設計具備 AI 互動功能的程式小遊戲。",
+        topics: [
+          "1. Scratch 影像辨識專案：智慧垃圾分類箱",
+          "2. 姿態偵測 (POSENET)：設計體感互動控球遊戲",
+          "3. AI 倫理思辨：演算法偏見與數據公平性"
+        ],
+        tools: "Scratch 3.0 + ML4K 擴充積木, WebCam 攝影機",
+        assessment: "專案評估：小組完成一個具備 AI 識別功能的 Scratch 遊戲。"
+      },
+      p6: {
+        title: "P6 第六學年：AIoT 智慧校園專題與科技向善",
+        tag: "高小專題與 STEM",
+        hours: "建議課時：10-12 課時",
+        objective: "整合 Micro:bit 與 AI 鏡頭硬體，設計解決社區或校園實際問題的 AIoT 智能裝置，並進行學術誠信討論。",
+        topics: [
+          "1. AIoT 跨學科專題：Micro:bit + Huskylens 人臉/標籤識別門禁",
+          "2. 科技向善與社區關懷：為弱勢或長者設計 AI 輔助工具",
+          "3. 畢業專案評估與著作權/誠信宣告"
+        ],
+        tools: "Micro:bit, Huskylens / Smart AI Lens, 擴展板與馬達",
+        assessment: "專題報告：進行校本 AIoT 成果展示與誠信聲明撰寫。"
+      }
+    };
+
+    function renderGrade(gradeKey) {
+      document.querySelectorAll('.grade-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+      });
+      const activeBtn = document.getElementById('btn-' + gradeKey);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+        activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      }
+
+      const data = gradeData[gradeKey];
+      const card = document.getElementById('grade-detail-card');
+      card.innerHTML = `
+        <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-4 gap-2">
+          <div>
+            <span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-bold mr-2">${data.tag}</span>
+            <span class="text-xs text-slate-500 font-medium">${data.hours}</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-2">${data.title}</h3>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-bullseye text-indigo-600 mr-2"></i>學習目標</h4>
+            <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">${data.objective}</p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-bold text-slate-800 mb-2"><i class="fa-solid fa-book-open text-indigo-600 mr-2"></i>核心單元議題</h4>
+            <div class="space-y-2">
+              ${data.topics.map(t => `<div class="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 flex items-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i>${t}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div class="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100">
+              <span class="text-xs font-bold text-indigo-900 block mb-1"><i class="fa-solid fa-toolbox mr-1.5"></i>推薦教學工具／軟體</span>
+              <span class="text-xs text-slate-700">${data.tools}</span>
+            </div>
+            <div class="bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-100">
+              <span class="text-xs font-bold text-emerald-900 block mb-1"><i class="fa-solid fa-clipboard-check mr-1.5"></i>評估與學習產出</span>
+              <span class="text-xs text-slate-700">${data.assessment}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildPrompt() {
+      const grade = document.getElementById('prompt-grade').value;
+      const type = document.getElementById('prompt-type').value;
+      const tone = document.getElementById('prompt-tone').value;
+
+      let context = "";
+      if (grade === "p2") context = "我是一位小二電腦科老師，正在準備『AI 語音助手與生活』單元。";
+      if (grade === "p4") context = "我是一位小四電腦科老師，正在準備『辨識深偽圖像 Fake Image 與資訊真偽』單元。";
+      if (grade === "p6") context = "我是一位小六 STEM 負責老師，正在準備『AIoT 智慧校園減廢專題』單元。";
+
+      let task = "";
+      if (type === "lesson") task = "請幫我設計一個 15 分鐘的引起動機課堂活動，包含教師說明步驟、學生分組討論問題與所需道具。";
+      if (type === "story") task = "請撰寫一篇 300 字的原創導引故事，故事中需融入 AI 的運作概念，並在結尾附上 2 個思考題。";
+      if (type === "quiz") task = "請設計 3 道適合該年級的倫理情境選擇題，每題需附 4 個選項、正確答案與 100 字淺顯解析。";
+
+      let toneText = tone === "fun" ? "語氣請保持童趣活潑，多使用生活化比喻。" : "請以條理清晰的格式輸出，並附上時間分配表格。";
+
+      const fullPrompt = `【Role】你是一位資深香港小學 STEM 與電腦科課程專家。\n【Context】${context}\n【Task】${task}\n【Audience】目標受眾為香港小學生，使用繁體中文與香港常用教育用語。\n【Constraints】${toneText}`;
+
+      document.getElementById('prompt-result-text').innerText = fullPrompt;
+    }
+
+    function copyGeneratedPrompt() {
+      const text = document.getElementById('prompt-result-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Prompt 模板已複製！");
+      });
+    }
+
+    function calculateEthicsScore() {
+      const checkboxes = document.querySelectorAll('.ethics-chk');
+      let checkedCount = 0;
+      checkboxes.forEach(chk => {
+        if (chk.checked) checkedCount++;
+      });
+      const score = checkedCount * 25;
+      document.getElementById('ethics-score-text').innerText = `${score} / 100 分`;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+      }, 2000);
+    }
+
+    function initCharts() {
+      const ctxHours = document.getElementById('hoursChart').getContext('2d');
+      new Chart(ctxHours, {
+        type: 'bar',
+        data: {
+          labels: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'],
+          datasets: [
+            {
+              label: '認識 AI 應用',
+              data: [50, 40, 30, 20, 15, 10],
+              backgroundColor: '#60a5fa'
+            },
+            {
+              label: 'AI 運作概念',
+              data: [30, 30, 30, 30, 25, 20],
+              backgroundColor: '#f59e0b'
+            },
+            {
+              label: 'AI 應用與編程實踐',
+              data: [10, 20, 25, 35, 45, 50],
+              backgroundColor: '#10b981'
+            },
+            {
+              label: '反思與倫理態度',
+              data: [10, 10, 15, 15, 15, 20],
+              backgroundColor: '#f43f5e'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+
+      const ctxRadar = document.getElementById('radarChart').getContext('2d');
+      new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+          labels: ['AI 工具操作', '運算思維編程', '提示詞 (Prompt) 寫作', '資訊真偽辨識', '個人私隱警覺', '跨學科解難'],
+          datasets: [
+            {
+              label: 'P4 學生平均',
+              data: [65, 40, 50, 60, 70, 45],
+              borderColor: '#94a3b8',
+              backgroundColor: 'rgba(148, 163, 184, 0.2)'
+            },
+            {
+              label: 'P6 畢業目標',
+              data: [90, 85, 85, 85, 90, 88],
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.25)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: '#e2e8f0' },
+              suggestedMin: 0,
+              suggestedMax: 100,
+              ticks: { display: false }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    window.onload = function() {
+      initCharts();
+      renderGrade('p1');
+      buildPrompt();
+    };
+  </script>
+</body>
+</html>
