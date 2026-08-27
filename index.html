@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Teacher Hub | 導師 AI 培訓基地</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,.4); border-radius: 3px; }
+
+    /* ── glass ── */
+    .glass {
+      background: rgba(255,255,255,.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* ── neon glow ── */
+    .neon-border {
+      position: relative;
+    }
+    .neon-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
+      background-size: 300% 300%;
+      animation: neonShift 6s ease infinite;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+    .neon-border:hover::before { opacity: 1; }
+
+    @keyframes neonShift {
+      0%,100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* ── glow orbs ── */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: .35;
+    }
+
+    /* ── card hover ── */
+    .card-hover {
+      transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 60px rgba(99,102,241,.15), 0 0 40px rgba(168,85,247,.08);
+    }
+
+    /* ── variable highlight ── */
+    .var-highlight {
+      background: linear-gradient(135deg, rgba(99,102,241,.25), rgba(168,85,247,.25));
+      color: #c4b5fd;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 1px solid rgba(139,92,246,.3);
+      white-space: nowrap;
+    }
+
+    /* ── prompt block ── */
+    .prompt-block {
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: .82rem;
+      line-height: 1.7;
+      color: #d1d5db;
+      position: relative;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── tabs ── */
+    .tab-active {
+      background: linear-gradient(135deg, rgba(99,102,241,.2), rgba(168,85,247,.2));
+      color: #a5b4fc;
+      border-color: rgba(99,102,241,.5);
+    }
+
+    /* ── tag ── */
+    .tag {
+      background: rgba(99,102,241,.12);
+      color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,.2);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: .7rem;
+      font-weight: 500;
+      transition: all .2s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tag:hover {
+      background: rgba(99,102,241,.25);
+      border-color: rgba(99,102,241,.4);
+    }
+
+    /* ── toast ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff;
+      padding: .75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: .875rem;
+      box-shadow: 0 10px 40px rgba(99,102,241,.4);
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: all .4s cubic-bezier(.22,1,.36,1);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── copy btn ── */
+    .copy-btn {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all .25s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .72rem;
+      font-family: 'Inter','Noto Sans TC',sans-serif;
+    }
+    .copy-btn:hover {
+      background: rgba(99,102,241,.2);
+      color: #a5b4fc;
+      border-color: rgba(99,102,241,.4);
+    }
+    .copy-btn.copied {
+      background: rgba(34,197,94,.15);
+      color: #4ade80;
+      border-color: rgba(34,197,94,.3);
+    }
+
+    /* ── search ── */
+    .search-glow:focus {
+      box-shadow: 0 0 0 2px rgba(99,102,241,.4), 0 0 20px rgba(99,102,241,.1);
+    }
+
+    /* ── light mode overrides ── */
+    html:not(.dark) .glass {
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    html:not(.dark) .glass-strong {
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(0,0,0,.1);
+    }
+    html:not(.dark) .prompt-block {
+      background: rgba(0,0,0,.04);
+      border-color: rgba(0,0,0,.08);
+      color: #374151;
+    }
+    html:not(.dark) .var-highlight {
+      background: rgba(99,102,241,.12);
+      color: #4338ca;
+      border-color: rgba(99,102,241,.25);
+    }
+    html:not(.dark) .tag {
+      background: rgba(99,102,241,.08);
+      color: #4338ca;
+      border-color: rgba(99,102,241,.15);
+    }
+    html:not(.dark) .copy-btn {
+      background: rgba(0,0,0,.04);
+      border-color: rgba(0,0,0,.08);
+      color: #6b7280;
+    }
+    html:not(.dark) .copy-btn:hover {
+      background: rgba(99,102,241,.1);
+      color: #4338ca;
+    }
+
+    /* ── category badge ── */
+    .cat-badge {
+      font-size: .65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .cat-notebooklm { background: rgba(99,102,241,.15); color: #818cf8; }
+    .cat-video { background: rgba(236,72,153,.15); color: #f472b6; }
+    .cat-flashcard { background: rgba(34,197,94,.15); color: #4ade80; }
+    .cat-ppt { background: rgba(251,191,36,.15); color: #fbbf24; }
+
+    /* ── fade in ── */
+    .fade-in {
+      animation: fadeIn .5s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ── card grid ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── hero gradient text ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* section heading line */
+    .section-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,.4), rgba(168,85,247,.4), transparent);
+    }
+
+    /* smooth scroll */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+
+<body class="bg-gray-950 text-gray-200 min-h-screen font-sans transition-colors duration-300">
+
+  <!-- ════════ GLOW ORBS ════════ -->
+  <div class="glow-orb" style="width:500px;height:500px;top:-10%;left:-5%;background:#6366f1;"></div>
+  <div class="glow-orb" style="width:400px;height:400px;bottom:10%;right:-8%;background:#a855f7;"></div>
+  <div class="glow-orb" style="width:300px;height:300px;top:50%;left:40%;background:#ec4899;opacity:.2;"></div>
+
+  <!-- ════════ TOAST ════════ -->
+  <div id="toast" class="toast">
+    <span style="display:flex;align-items:center;gap:6px;">
+      <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+      已複製到剪貼簿
+    </span>
+  </div>
+
+  <!-- ════════ HEADER ════════ -->
+  <header class="sticky top-0 z-50 glass-strong">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- top row -->
+      <div class="flex items-center justify-between h-16 gap-4">
+        <!-- logo -->
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <i data-lucide="brain-circuit" class="w-5 h-5 text-white"></i>
+          </div>
+          <div class="hidden sm:block">
+            <h1 class="text-sm font-bold text-white leading-tight">AI Teacher Hub</h1>
+            <p class="text-[.65rem] text-gray-400 leading-tight">導師 AI 培訓基地</p>
+          </div>
+        </div>
+
+        <!-- search -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"></i>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="搜尋 Prompt、標籤、案例..."
+            class="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-200 placeholder-gray-500 focus:outline-none search-glow transition-all"
+          />
+        </div>
+
+        <!-- theme toggle -->
+        <button id="themeToggle" class="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all" title="切換主題">
+          <i data-lucide="sun" class="w-4 h-4 dark:block hidden text-yellow-300"></i>
+          <i data-lucide="moon" class="w-4 h-4 dark:hidden block text-indigo-300"></i>
+        </button>
+      </div>
+
+      <!-- tabs row -->
+      <div class="flex gap-2 pb-3 overflow-x-auto no-scrollbar" id="tabsContainer">
+        <button class="tab px-4 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-all whitespace-nowrap tab-active" data-cat="all">
+          <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>全部</span>
+        </button>
+        <button class="tab px-4 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-all whitespace-nowrap hover:bg-white/5" data-cat="notebooklm">
+          <span class="flex items-center gap-1.5"><i data-lucide="presentation" class="w-3.5 h-3.5"></i>NotebookLM 轉 PPT</span>
+        </button>
+        <button class="tab px-4 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-all whitespace-nowrap hover:bg-white/5" data-cat="video">
+          <span class="flex items-center gap-1.5"><i data-lucide="video" class="w-3.5 h-3.5"></i>AI 影片生成</span>
+        </button>
+        <button class="tab px-4 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-all whitespace-nowrap hover:bg-white/5" data-cat="flashcard">
+          <span class="flex items-center gap-1.5"><i data-lucide="brain" class="w-3.5 h-3.5"></i>智能溫習卡</span>
+        </button>
+        <button class="tab px-4 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-all whitespace-nowrap hover:bg-white/5" data-cat="ppt">
+          <span class="flex items-center gap-1.5"><i data-lucide="palette" class="w-3.5 h-3.5"></i>PPT 美化案例</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════ MAIN ════════ -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- hero -->
+    <section class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-extrabold mb-3">
+        <span class="gradient-text">用 AI 重新定義教學</span>
+      </h2>
+      <p class="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+        精選 Prompt 工具箱 — 從簡報生成、影片腳本到智慧溫習卡，一站式提升教師備課效率。
+      </p>
+    </section>
+
+    <!-- cards grid -->
+    <div id="cardsGrid" class="card-grid"></div>
+
+    <!-- empty state -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <i data-lucide="search-x" class="w-16 h-16 text-gray-600 mx-auto mb-4"></i>
+      <p class="text-gray-500 text-lg font-medium">找不到符合的內容</p>
+      <p class="text-gray-600 text-sm mt-1">嘗試更換關鍵字或分類</p>
+    </div>
+  </main>
+
+  <!-- ════════ FOOTER ════════ -->
+  <footer class="relative z-10 border-t border-white/5 mt-12 py-8 text-center">
+    <p class="text-gray-600 text-xs">AI Teacher Hub &copy; 2026 &mdash; 為教育工作者打造的 AI 工具箱</p>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       PROMPT_DATA 集中管理區
+       ────────────────────────────────────────────────────────────
+       【修改方法】
+       每筆資料為一個物件，結構如下：
+         {
+           id:          唯一識別碼 (數字)
+           title:       卡片標題 (字串)
+           category:    分類代碼，僅限以下四種：
+                          "notebooklm"  → NotebookLM 轉 PPT
+                          "video"       → AI 影片生成
+                          "flashcard"   → 智能溫習卡
+                          "ppt"         → PPT 美化案例
+           tags:        標籤陣列，例如 ["分鏡","影片"]
+           prompts:     陣列，每個元素含 {
+                           lang : "zh" | "en" | "style" | "scene" | "note"
+                           label: 顯示名稱 (如「中文 Prompt」)
+                           text : 完整 Prompt 內容
+                         }
+           description: 卡片描述 (字串)
+         }
+
+       【新增 Prompt 範例】
+       {
+         id: 99,
+         title: "新功能標題",
+         category: "flashcard",
+         tags: ["溫習", "選擇題"],
+         description: "這是一段簡短說明...",
+         prompts: [
+           { lang: "zh", label: "中文 Prompt", text: "請將 [主題] 內容轉為..." },
+           { lang: "en", label: "English Prompt", text: "Convert [topic] into..." }
+         ]
+       }
+       ══════════════════════════════════════════════════════════════ -->
+
+  <script>
+  const PROMPT_DATA = [
+    // ────────────────── 模組一：NotebookLM 轉 PPT ──────────────────
+    {
+      id: 1,
+      title: "NotebookLM 文獻摘要 → 簡報大綱",
+      category: "notebooklm",
+      tags: ["NotebookLM", "摘要", "簡報大綱"],
+      description: "將上傳至 NotebookLM 的文獻自動提煉成結構化簡報大綱，涵蓋核心論點、數據佐證與結論建議。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請根據 NotebookLM 中已上傳的文獻資料，生成一份 12-15 頁的簡報大綱。要求：\n1. 第一頁為標題頁（含主題、副標題、講者姓名）\n2. 第 2-3 頁為摘要與背景\n3. 中間頁數按邏輯分段，每頁含「核心論點」+「支撐數據/案例」\n4. 倒數第 2 頁為結論與行動建議\n5. 最後一頁為 Q&A\n請以 [學科領域] 為範圍，適用 [年級] 學生。"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Based on the uploaded documents in NotebookLM, generate a 12-15 slide presentation outline. Requirements:\n1. Slide 1: Title page (topic, subtitle, presenter name)\n2. Slides 2-3: Executive summary & background\n3. Middle slides: logically grouped key arguments + supporting data\n4. Second to last: Conclusions & action items\n5. Final slide: Q&A\nContext: [subject area] for [grade level] students."
+        }
+      ]
+    },
+    {
+      id: 2,
+      title: "NotebookLM → 完整投影片逐頁生成",
+      category: "notebooklm",
+      tags: ["NotebookLM", "投影片", "逐頁"],
+      description: "進一步將大綱展開為逐頁投影片內容，含每頁標題、要點、視覺化建議與講者備註。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請根據以下簡報大綱，為每一頁投影片生成完整內容：\n\n頁面標題：[標題]\n要點：列出 3-5 個關鍵子項（每項不超過 15 字）\n視覺建議：推薦該頁適合的圖表類型（如長條圖、流程圖、圖片-placeholder）\n講者備註：提供 2-3 句口語化講稿\n\n適用主題：[主題]\n語氣風格：[專業 / 活潑 / 學術]\n目標受眾：[年級/對象]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "For each slide in the following outline, generate full slide content:\n\nSlide title: [title]\nBullet points: 3-5 key items (max 15 words each)\nVisual suggestion: recommended chart/image type\nSpeaker notes: 2-3 sentences of conversational script\n\nTopic: [topic]\nTone: [professional / casual / academic]\nAudience: [grade/audience]"
+        }
+      ]
+    },
+    {
+      id: 3,
+      title: "NotebookLM 智慧問答生成學習單",
+      category: "notebooklm",
+      tags: ["NotebookLM", "學習單", "問答"],
+      description: "利用 NotebookLM 對文獻的理解能力，自動產生閱讀理解問答學習單。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請根據 NotebookLM 中的文件，生成一份閱讀理解學習單：\n\n一、基礎理解題（3 題）：直接從文本可找到答案\n二、推論題（2 題）：需綜合兩段以上資訊\n三、批判思考題（1 題）：開放式，無標準答案\n四、詞彙填空（5 題）：從文本中抽出關鍵詞並挖空\n\n適用年級：[年級]\n學科：[學科]\n文件主題：[主題]"
+        }
+      ]
+    },
+    {
+      id: 4,
+      title: "NotebookLM 多文件比較分析",
+      category: "notebooklm",
+      tags: ["NotebookLM", "比較分析", "跨文本"],
+      description: "上傳多份文件後，讓 NotebookLM 交叉比較異同，生成對比表格與綜合分析。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請比較 NotebookLM 中已上傳的 [數量] 份文件，產出以下內容：\n\n1. 對比表格（列：文件名稱 / 核心主張 / 方法論 / 結論 / 局限性）\n2. 共同觀點（至少 3 項）\n3. 關鍵分歧點（至少 2 項，附各方論述）\n4. 綜合評析（200 字內）\n\n主題範圍：[主題]\n比較維度：[時間線 / 方法論 / 結論 / 其他]"
+        }
+      ]
+    },
+
+    // ────────────────── 模組二：AI 影片生成 ──────────────────
+    {
+      id: 5,
+      title: "教學影片分鏡腳本生成",
+      category: "video",
+      tags: ["分鏡", "影片", "腳本"],
+      description: "將教學主題自動拆解為完整分鏡腳本，含畫面描述、旁白文字、時長建議與鏡頭指示。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請為以下教學主題生成一份完整的分鏡腳本：\n\n主題：[主題]\n影片總時長：[分鐘] 分鐘\n目標觀眾：[年級/對象]\n\n分鏡格式：\n鏡號 | 畫面描述 | 旁白文字 | 時長(秒) | 鏡頭運動\n\n要求：\n- 開場 5 秒內需有吸引力 Hook\n- 每個知識點配一組分鏡\n- 結尾含行動呼籲 (CTA)\n- 旁白語氣：[親切 / 專業 / 活潑]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Generate a detailed shot-by-shot script for a teaching video:\n\nTopic: [topic]\nTotal duration: [minutes] min\nTarget audience: [grade/audience]\n\nFormat per shot:\nShot # | Visual Description | Narration Text | Duration (sec) | Camera Movement\n\nRequirements:\n- Hook within first 5 seconds\n- One shot sequence per knowledge point\n- End with a call-to-action\n- Tone: [friendly / professional / lively]"
+        }
+      ]
+    },
+    {
+      id: 6,
+      title: "AI 旁白腳本（多語言）",
+      category: "video",
+      tags: ["旁白", "TTS", "多語言"],
+      description: "生成適配文字轉語音 (TTS) 工具的旁白腳本，自動控制語速標記與停頓位置。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將以下教學內容轉換為 TTS 友善的旁白腳本：\n\n原始內容：[貼上講稿或大綱]\n\n格式要求：\n- 以短句為單位（每句不超過 20 字）\n- 用 [pause] 標記停頓（重要概念前後各加一個）\n- 用 [emphasis] 標記需加重語氣的詞\n- 用 [speed:slow] / [speed:normal] 控制語速\n- 標注段落間自然呼吸點\n\n語音風格：[溫柔女聲 / 清晰男聲 / 兒童配音]\n語言：[中文 / 英文 / 雙語]"
+        }
+      ]
+    },
+    {
+      id: 7,
+      title: "Sora / Runway 生成式影片 Prompt",
+      category: "video",
+      tags: ["Sora", "Runway", "AI影片"],
+      description: "為 AI 影片生成工具（Sora、Runway 等）撰寫符合其提示詞規範的影像描述。",
+      prompts: [
+        {
+          lang: "en",
+          label: "English Prompt (Primary)",
+          text: "Create a cinematic teaching video prompt for [AI video tool]:\n\nScene: [detailed scene description]\nSubject: [main visual subject]\nAction: [what is happening]\nStyle: [cinematic / animated / documentary]\nLighting: [natural / studio / dramatic]\nCamera: [wide shot / close-up / tracking]\nDuration: [seconds]s\nMood: [engaging / calm / inspiring]\n\nAdditional instructions:\n- Aspect ratio: 16:9\n- Resolution: 4K\n- No text overlays (will be added in post)\n- Smooth motion, no camera shake"
+        },
+        {
+          lang: "zh",
+          label: "中文說明",
+          text: "以上為英文版 Prompt（AI影片工具通常對英文理解更佳），中文說明：\n\n場景：[詳細場景描述]\n主體：[主要視覺主體]\n動作：[正在發生什麼]\n風格：[電影級 / 動畫 / 紀錄片]\n鏡頭：[廣角 / 近距離 / 跟蹤]\n\n使用技巧：\n- 盡量使用具體視覺描述，避免抽象概念\n- 加入光線、色調、氛圍關鍵字\n- 參考具體電影或藝術風格（如 Wes Anderson 色調）"
+        }
+      ]
+    },
+    {
+      id: 8,
+      title: "教學影片字幕與時間軸生成",
+      category: "video",
+      tags: ["字幕", "SRT", "時間軸"],
+      description: "根據旁白稿自動生成 SRT 格式字幕檔，含精準時間戳與格式規範。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將以下旁白稿轉為 SRT 格式字幕：\n\n[貼上旁白稿]\n\n要求：\n1. 每行字幕不超過 15 個中文字（或 42 個英文字母）\n2. 每段字幕顯示 2-5 秒\n3. 字幕間不留空白時間段\n4. 自然斷句，不在詞語中間斷開\n5. 輸出完整 SRT 格式（含序號與時間戳）\n\n語言：[中文 / 英文]\n影片總時長：[分鐘] 分鐘"
+        }
+      ]
+    },
+
+    // ────────────────── 模組三：智能溫習卡 ──────────────────
+    {
+      id: 9,
+      title: "教材 → 雙面記憶卡 (Flashcards)",
+      category: "flashcard",
+      tags: ["記憶卡", "溫習", "Anki"],
+      description: "將教材內容自動轉化為正面問題、背面答案的記憶卡組合，支援 Anki CSV 匯出格式。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將以下教材內容轉化為記憶卡（Flashcards）：\n\n[貼上教材內容]\n\n格式要求：\n- 正面 (Front)：簡潔的問題或提示詞（不超過 15 字）\n- 背面 (Back)：精準的答案（不超過 30 字）\n- 每個知識點生成 1-2 張卡片\n- 標注難度等級：⭐ 簡單 / ⭐⭐ 中等 / ⭐⭐⭐ 困難\n\n輸出為以下 CSV 格式（可直接匯入 Anki）：\n卡片編號, 正面, 背面, 難度, 標籤\n\n數量：約 [數量] 張\n適用年級：[年級]"
+        },
+        {
+          lang: "en",
+          label: "Anki Import Format",
+          text: "Convert the following textbook content into flashcards:\n\n[paste content]\n\nFormat:\n- Front: concise question/prompt (max 15 words)\n- Back: precise answer (max 30 words)\n- 1-2 cards per knowledge point\n- Difficulty: ★ easy / ★★ medium / ★★★ hard\n\nOutput as tab-separated values for Anki import:\nID\\tFront\\tBack\\tDifficulty\\tTags\n\nCount: ~[number] cards\nGrade: [grade level]"
+        }
+      ]
+    },
+    {
+      id: 10,
+      title: "選擇題自動命題器",
+      category: "flashcard",
+      tags: ["選擇題", "測驗", "命題"],
+      description: "根據教材內容自動生成包含干擾項的高品質選擇題，附詳解與知識點標注。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請根據以下教材內容，生成 [數量] 道選擇題：\n\n[貼上教材]\n\n每題格式：\n題號. 題目\nA. 選項\nB. 選項\nC. 選項\nD. 選項\n✅ 正確答案：X\n📝 解析：（說明為何選此答案，以及其他選項為何錯誤）\n📌 知識點：[標注對應課本章節]\n\n規則：\n- 干擾項必須合理，不能一眼看出錯誤\n- 涵蓋不同認知層次（記憶、理解、應用、分析）\n- 標注每題難度：易 / 中 / 難"
+        }
+      ]
+    },
+    {
+      id: 11,
+      title: "間隔重複複習計畫生成",
+      category: "flashcard",
+      tags: ["間隔重複", "複習計畫", "SRS"],
+      description: "根據艾賓浩斯遺忘曲線，自動排程溫習卡的複習時間表。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請根據以下學習主題，設計一份間隔重複（Spaced Repetition）複習計畫：\n\n學習主題：[主題]\n學習日：[日期]\n每日可用複習時間：[分鐘] 分鐘\n\n請生成：\n1. 第 1 天：初次學習 + 立即回顧\n2. 第 2 天：第一次複習（回顧全部）\n3. 第 4 天：第二次複習\n4. 第 7 天：第三次複習\n5. 第 15 天：第四次複習\n6. 第 30 天：最終鞏固\n\n每日計畫需包含：\n- 時間段建議（如上午/下午）\n- 當日需複習的卡片範圍\n- 建議學習策略（如自測、口述、書寫）"
+        }
+      ]
+    },
+    {
+      id: 12,
+      title: "概念圖 / 思維導圖文字版",
+      category: "flashcard",
+      tags: ["概念圖", "思維導圖", "知識結構"],
+      description: "將教材轉化為樹狀概念圖文字描述，方便匯入 Mind Map 工具。",
+      prompts: [
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將以下教材內容轉化為概念圖（Mind Map）的文字描述：\n\n[貼上教材]\n\n格式（縮進代表層級）：\n主題\n  ├── 子主題 1\n  │     ├── 概念 A（一句話定義）\n  │     └── 概念 B（一句話定義）\n  ├── 子主題 2\n  │     ├── 概念 C\n  │     └── 概念 D\n  └── 子主題 3\n\n要求：\n- 最多 3 個層級\n- 每個葉節點附一句話解釋\n- 標注概念間的關係類型：[因果 / 並列 / 包含 / 對比]\n- 適合匯入 XMind / Miro 等工具"
+        }
+      ]
+    },
+
+    // ────────────────── 模組四：PPT 美化案例 ──────────────────
+    {
+      id: 13,
+      title: "科技感風格 PPT",
+      category: "ppt",
+      tags: ["科技感", "深色主題", "霓虹"],
+      description: "以深色為底、霓虹漸層為亮點的科技風投影片設計 Prompt，適合 STEM、AI、數據科學類主題。",
+      prompts: [
+        {
+          lang: "style",
+          label: "風格特色",
+          text: "🎨 色彩主題：深灰/黑底 (#0F172A) + 霓虹藍 (#06B6D4) / 霓虹紫 (#8B5CF6) 漸層高亮\n📐 排版風格：左對齊大標題 + 右側視覺區、大量留白、幾何線條裝飾\n✨ 特色元素：發光邊框、粒子背景、漸層按鈕、glassmorphism 卡片"
+        },
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將現有投影片重新設計為「科技感」風格：\n\n設計規範：\n- 背景：深色 (#0F172A)，可加微妙的網格或粒子紋理\n- 主要文字：白色 (#F8FAFC)\n- 強調色：霓虹藍 (#06B6D4) 與霓虹紫 (#8B5CF6) 漸層\n- 字體：標題用粗體無襯線、內文用細體\n- 圖表配色：使用霓虹色系漸層填充\n- 圖片處理：加 8px 圓角 + 微發光邊框\n- 過渡動畫：淡入 + 輕微縮放\n\n適用主題：[科技 / AI / 數據 / STEM]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Redesign the existing slides in a 'Tech Futuristic' style:\n\nDesign specs:\n- Background: dark (#0F172A) with subtle grid/particle texture\n- Primary text: white (#F8FAFC)\n- Accent: neon gradient (cyan #06B6D4 → purple #8B5CF6)\n- Typography: bold sans-serif headings, light-weight body\n- Charts: neon gradient fills\n- Images: 8px border-radius + subtle glow border\n- Transitions: fade-in with slight scale\n\nContext: [technology / AI / data science / STEM]"
+        },
+        {
+          lang: "scene",
+          label: "適用場景",
+          text: "✅ 適合：AI/機器學習工作坊、程式設計課程、數據科學演講、科技產品發布\n❌ 不適合：幼教、文學赏析、歷史文化類主題"
+        }
+      ]
+    },
+    {
+      id: 14,
+      title: "極簡學術風格 PPT",
+      category: "ppt",
+      tags: ["極簡", "學術", "正式"],
+      description: "乾淨清爽的學術風投影片，大量留白配低飽和配色，適合研究報告、論文答辯。",
+      prompts: [
+        {
+          lang: "style",
+          label: "風格特色",
+          text: "🎨 色彩主題：白底 (#FFFFFF) + 深墨 (#1E293B) + 低飽和藍 (#64748B)\n📐 排版風格：居中或左對齊、大量留白（至少 40%）、網格對齊\n✨ 特色元素：細線分隔、小圓點列表、頁碼水印、極細字重"
+        },
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將現有投影片重新設計為「極簡學術」風格：\n\n設計規範：\n- 背景：純白 (#FFFFFF) 或極淺灰 (#F8FAFC)\n- 主要文字：深墨色 (#1E293B)\n- 強調色：低飽和石板藍 (#64748B)\n- 留白比例 ≥ 40%\n- 每頁文字不超過 6 行\n- 圖表使用灰階 + 單一強調色\n- 無裝飾性元素，一切以清晰為首要\n- 引用文獻頁使用小字號 + 懸掛縮排\n\n適用場景：[研究報告 / 論文答辯 / 學術研討會]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Redesign slides in a 'Minimal Academic' style:\n\nSpecs:\n- Background: pure white (#FFFFFF) or light gray (#F8FAFC)\n- Primary text: dark ink (#1E293B)\n- Accent: muted slate blue (#64748B)\n- Whitespace ≥ 40%\n- Max 6 lines of text per slide\n- Charts: grayscale + single accent color\n- No decorative elements; clarity first\n- References: small font with hanging indent\n\nUse case: [research report / thesis defense / academic conference]"
+        },
+        {
+          lang: "scene",
+          label: "適用場景",
+          text: "✅ 適合：碩博士論文答辯、研究計畫報告、學術研討會、正式匯報\n❌ 不適合：兒童教學、產品行銷、創意發想"
+        }
+      ]
+    },
+    {
+      id: 15,
+      title: "童趣活潑風格 PPT",
+      category: "ppt",
+      tags: ["童趣", "活潑", "小學"],
+      description: "色彩繽紛、圓潤插畫風的投影片設計，適合小學教學、親子活動與兒童工作坊。",
+      prompts: [
+        {
+          lang: "style",
+          label: "風格特色",
+          text: "🎨 色彩主題：奶油白底 (#FFFBEB) + 多彩柔和色（珊瑚粉 #FB7185、天空藍 #38BDF8、薄荷綠 #34D399、陽光黃 #FBBF24）\n📐 排版風格：居中為主、圓角卡片、大圖少字、手寫感字體\n✨ 特色元素：卡通插畫、圓形圖案、對話框、星星/彩虹裝飾"
+        },
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將現有投影片重新設計為「童趣活潑」風格：\n\n設計規範：\n- 背景：奶油白 (#FFFBEB) 或淺彩底紋\n- 字體：圓體/手寫體（標題 ≥ 36pt）\n- 配色：珊瑚粉、天空藍、薄荷綠、陽光黃 交替使用\n- 每頁只放 1 個核心概念 + 1 張大圖\n- 圖示使用卡通手繪風格\n- 列表改為帶表情符號的項目\n- 動畫：彈跳效果、旋轉進入\n\n適用年級：[小學低年級 / 小學中高年級 / 幼兒園]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Redesign slides in a 'Playful Cartoon' style:\n\nSpecs:\n- Background: cream (#FFFBEB) or pastel patterns\n- Fonts: rounded/handwritten (headings ≥ 36pt)\n- Colors: coral pink, sky blue, mint green, sunny yellow (rotate)\n- One core concept + one big illustration per slide\n- Cartoon hand-drawn style icons\n- Bullet points → emoji-prefixed items\n- Animations: bounce-in, spin entrance\n\nTarget: [early primary / upper primary / kindergarten]"
+        },
+        {
+          lang: "scene",
+          label: "適用場景",
+          text: "✅ 適合：小學各科教學、親子活動簡報、兒童營隊、幼兒園教学\n❌ 不適合：高中以上、正式學術報告、企業培訓"
+        }
+      ]
+    },
+    {
+      id: 16,
+      title: "資訊圖表風格 PPT",
+      category: "ppt",
+      tags: ["資訊圖表", "數據視覺化", "Infographic"],
+      description: "以數據驅動的資訊圖表為核心的投影片設計，適合成果報告、數據分析、年度總結。",
+      prompts: [
+        {
+          lang: "style",
+          label: "風格特色",
+          text: "🎨 色彩主題：深藍底 (#1E3A5F) + 漸層高亮（橘 #F97316 → 黃 #EAB308 → 綠 #22C55E）\n📐 排版風格：不對稱佈局、數據卡片網格、大量圖表佔比 > 60%\n✨ 特徵元素：圓環圖、樹狀圖、時間軸、進度條、數據標籤浮動"
+        },
+        {
+          lang: "zh",
+          label: "中文 Prompt",
+          text: "請將現有投影片重新設計為「資訊圖表」風格：\n\n設計規範：\n- 背景：深藍 (#1E3A5F) 或深灰 (#1F2937)\n- 圖表佔比 ≥ 60% 每頁面積\n- 數據強調色：橘→黃→綠漸層\n- 使用圖表類型建議：\n  · 比較 → 橫條圖\n  · 趨勢 → 折線圖\n  · 佔比 → 圓環圖\n  · 流程 → 流程圖\n  · 層級 → 樹狀圖\n- 每頁設定一個「關鍵數字」放大顯示（≥ 72pt）\n- 數據來源標注於頁面底部\n\n適用場景：[年度報告 / 成果展示 / 數據分析]"
+        },
+        {
+          lang: "en",
+          label: "English Prompt",
+          text: "Redesign slides in an 'Infographic Dashboard' style:\n\nSpecs:\n- Background: deep blue (#1E3A5F) or dark gray (#1F2937)\n- Charts occupy ≥ 60% of each slide\n- Accent gradient: orange → yellow → green\n- Chart type guide:\n  · Comparison → horizontal bar\n  · Trend → line chart\n  · Proportion → donut chart\n  · Process → flowchart\n  · Hierarchy → tree diagram\n- One 'hero number' per slide (≥ 72pt)\n- Data source citation at bottom\n\nUse case: [annual report / project showcase / data review]"
+        },
+        {
+          lang: "scene",
+          label: "適用場景",
+          text: "✅ 適合：學校年度報告、教學成果展示、研究數據分析、專案總結\n❌ 不適合：純故事講述、創意發想、非數據類簡報"
+        }
+      ]
+    }
+  ];
+
+  // ── DOM refs ──
+  const grid = document.getElementById('cardsGrid');
+  const empty = document.getElementById('emptyState');
+  const searchInput = document.getElementById('searchInput');
+  const tabsContainer = document.getElementById('tabsContainer');
+  const toast = document.getElementById('toast');
+  const themeToggle = document.getElementById('themeToggle');
+
+  let activeCategory = 'all';
+  let searchQuery = '';
+
+  // ── Category labels & badge class ──
+  const CAT_META = {
+    notebooklm: { label: 'NotebookLM 轉 PPT', badge: 'cat-notebooklm', icon: 'presentation' },
+    video:      { label: 'AI 影片生成',       badge: 'cat-video',      icon: 'video' },
+    flashcard:  { label: '智能溫習卡',        badge: 'cat-flashcard',  icon: 'brain' },
+    ppt:        { label: 'PPT 美化案例',      badge: 'cat-ppt',        icon: 'palette' },
+  };
+
+  const LANG_LABELS = {
+    zh:     { label: '中文 Prompt',   icon: 'languages' },
+    en:     { label: 'English Prompt', icon: 'globe' },
+    style:  { label: '🎨 風格特色',   icon: 'brush' },
+    scene:  { label: '📌 適用場景',   icon: 'map-pin' },
+    note:   { label: '📝 備註',       icon: 'sticky-note' },
+  };
+
+  // ── Highlight variables like [主題] ──
+  function highlightVars(text) {
+    return text.replace(/(\[[^\]]+\])/g, '<span class="var-highlight">$1</span>');
+  }
+
+  // ── Show Toast ──
+  let toastTimer;
+  function showToast() {
+    clearTimeout(toastTimer);
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ── Copy to clipboard ──
+  async function copyText(text, btn) {
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.classList.add('copied');
+      btn.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;"></i>已複製';
+      lucide.createIcons({ nodes: [btn] });
+      showToast();
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<i data-lucide="copy" style="width:12px;height:12px;"></i>複製';
+        lucide.createIcons({ nodes: [btn] });
+      }, 2000);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast();
+    }
+  }
+
+  // ── Render cards ──
+  function renderCards() {
+    const q = searchQuery.toLowerCase().trim();
+    const filtered = PROMPT_DATA.filter(item => {
+      const catMatch = activeCategory === 'all' || item.category === activeCategory;
+      if (!catMatch) return false;
+      if (!q) return true;
+      const haystack = (
+        item.title + ' ' +
+        item.description + ' ' +
+        item.tags.join(' ') + ' ' +
+        item.prompts.map(p => p.text).join(' ')
+      ).toLowerCase();
+      return haystack.includes(q);
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      lucide.createIcons();
+      return;
+    }
+
+    empty.classList.add('hidden');
+
+    grid.innerHTML = filtered.map((item, idx) => {
+      const meta = CAT_META[item.category];
+      const tagsHtml = item.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+      const promptsHtml = item.prompts.map(p => {
+        const langMeta = LANG_LABELS[p.lang] || LANG_LABELS.note;
+        return `
+          <div class="mt-3">
+            <div class="flex items-center gap-1.5 mb-1.5">
+              <i data-lucide="${langMeta.icon}" style="width:13px;height:13px;color:#818cf8;" class="shrink-0"></i>
+              <span class="text-xs font-semibold text-indigo-300 dark:text-indigo-300" style="color:#818cf8;">${p.label}</span>
+            </div>
+            <div class="prompt-block relative">
+              <button class="copy-btn" data-copy="${encodeURIComponent(p.text)}" title="複製 Prompt">
+                <i data-lucide="copy" style="width:12px;height:12px;"></i>複製
+              </button>
+              ${highlightVars(p.text)}
+            </div>
+          </div>`;
+      }).join('');
+
+      return `
+        <article class="glass rounded-2xl p-5 card-hover neon-border fade-in" style="animation-delay:${idx * 60}ms">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <span class="cat-badge ${meta.badge}">${meta.label}</span>
+          </div>
+          <h3 class="text-base font-bold text-white dark:text-white mb-1.5 leading-snug" style="color:#f1f5f9;">${item.title}</h3>
+          <p class="text-xs text-gray-400 dark:text-gray-400 mb-3 leading-relaxed" style="color:#9ca3af;">${item.description}</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">${tagsHtml}</div>
+          ${promptsHtml}
+        </article>`;
+    }).join('');
+
+    lucide.createIcons();
+
+    // bind copy buttons
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        copyText(decodeURIComponent(btn.dataset.copy), btn);
+      });
+    });
+  }
+
+  // ── Tab switching ──
+  tabsContainer.addEventListener('click', e => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    activeCategory = tab.dataset.cat;
+    tabsContainer.querySelectorAll('.tab').forEach(t => {
+      t.classList.remove('tab-active');
+      t.classList.add('hover:bg-white/5');
+    });
+    tab.classList.add('tab-active');
+    tab.classList.remove('hover:bg-white/5');
+    renderCards();
+  });
+
+  // ── Search ──
+  let searchDebounce;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      searchQuery = searchInput.value;
+      renderCards();
+    }, 200);
+  });
+
+  // ── Theme toggle ──
+  function applyTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    document.body.classList.toggle('bg-gray-950', isDark);
+    document.body.classList.toggle('bg-gray-50', !isDark);
+    document.body.classList.toggle('text-gray-200', isDark);
+    document.body.classList.toggle('text-gray-800', !isDark);
+  }
+
+  themeToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    applyTheme();
+    renderCards();
+  });
+
+  // restore theme
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.remove('dark');
+  }
+  applyTheme();
+
+  // ── Initial render ──
+  renderCards();
+  </script>
+</body>
+</html>
