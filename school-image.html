@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校本圖像製作 | 教師教學</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --blue: #1a56db; --blue-dark: #1446b5; --green: #0e9f6e; --ink: #1c2b4a; --muted: #5b6b8c; --bg: #f5f8ff; --card: #ffffff; --line: #e3edff; }
+  html { scroll-behavior: smooth; }
+  body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+  a { color: var(--blue); text-decoration: none; }
+
+  header.hero {
+    background: linear-gradient(135deg, #1a56db 0%, #2f7bf0 100%);
+    color: #fff; padding: 56px 24px 48px; text-align: center;
+  }
+  .hero .kicker { font-size: 15px; opacity: .85; letter-spacing: 1px; margin-bottom: 8px; }
+  .hero h1 { font-size: 38px; letter-spacing: 2px; margin-bottom: 10px; }
+  .hero .meta { font-size: 16px; opacity: .92; }
+
+  nav.sticky {
+    position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(26,86,219,.06); z-index: 50; overflow-x: auto; white-space: nowrap;
+  }
+  nav.sticky ul { list-style: none; display: flex; max-width: 1050px; margin: 0 auto; }
+  nav.sticky a { display: block; padding: 16px 16px; color: var(--muted); font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; }
+  nav.sticky a:hover, nav.sticky a.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  main { max-width: 1050px; margin: 0 auto; padding: 24px; }
+  section { margin: 44px 0; scroll-margin-top: 64px; }
+  h2 { font-size: 25px; color: var(--blue); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .sect-sub { color: var(--muted); margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-top: 18px; }
+  h3 { font-size: 19px; margin-bottom: 8px; color: var(--ink); }
+  p.dim { color: var(--muted); }
+
+  .grid { display: grid; gap: 18px; margin-top: 18px; }
+  .grid.two { grid-template-columns: repeat(2, 1fr); }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 700px) { .grid.two, .grid.three { grid-template-columns: 1fr; } }
+
+  .step { display: flex; gap: 16px; align-items: flex-start; margin: 16px 0; }
+  .step .num { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .step h4 { margin-bottom: 2px; }
+  .step p { color: var(--muted); font-size: 15px; }
+  .step.green .num { background: var(--green); }
+
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; background: var(--blue); color: #fff; font-size: 15px; transition: all .15s; }
+  .btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn.ghost { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+  .btn.ghost:hover { background: #eef3ff; }
+
+  .prompt-card { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: #fbfdff; position: relative; }
+  .prompt-card h4 { color: var(--blue); margin-bottom: 8px; font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .prompt-card .tag { font-size: 12px; background: #eef3ff; color: var(--blue); padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .prompt-box { background: #0f1b33; color: #eaf1ff; padding: 14px 16px; border-radius: 10px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin: 10px 0; position: relative; }
+  .copy-btn { margin-top: 6px; background: #fff; color: var(--blue); border: 2px solid var(--blue); border-radius: 8px; padding: 6px 14px; font-weight: 600; font-size: 13px; cursor: pointer; }
+  .copy-btn:hover { background: #eef3ff; }
+
+  .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 700px) { .gallery { grid-template-columns: 1fr; } }
+  .gallery figure { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; }
+  .gallery img { width: 100%; display: block; object-fit: cover; }
+  .gallery figcaption { padding: 12px 14px; color: var(--muted); font-size: 14px; }
+
+  .grid.three .tool { border: 1px solid var(--line); border-radius: 14px; padding: 20px; background: #fbfdff; }
+  .tool h4 { color: var(--blue); margin-bottom: 6px; font-size: 17px; }
+  .tool p { font-size: 15px; color: var(--muted); }
+
+  .timeline { list-style: none; margin-top: 8px; }
+  .timeline li { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .timeline li:last-child { border-bottom: none; }
+  .timeline .time { min-width: 110px; font-weight: 700; color: var(--blue); }
+
+  .tip { background: #e8f6ef; border-left: 4px solid var(--green); padding: 14px 16px; border-radius: 8px; margin-top: 16px; color: #0f5132; font-size: 15px; }
+  .badge { display: inline-block; background: #eef3ff; color: var(--blue); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 600; }
+
+  footer { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); background: #fff; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">校本圖像製作 · 教師教學</div>
+  <h1>教您用 AI 製作校本圖像</h1>
+  <div class="meta">校服模板 → 校園場景 → 卡通角色 → 放入 PPT</div>
+</header>
+
+<nav class="sticky">
+  <ul>
+    <li><a href="#overview">點樣做</a></li>
+    <li><a href="#uniform">校服模板</a></li>
+    <li><a href="#scene">校園場景</a></li>
+    <li><a href="#style">風格切換</a></li>
+    <li><a href="#promptpack">提示詞範本</a></li>
+    <li><a href="#gallery">示範圖庫</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- 1. 點樣做 -->
+  <section id="overview">
+    <h2>🎯 三步搞掂</h2>
+    <p class="sect-sub">唔識畫圖、唔識寫程式都做到</p>
+    <div class="card">
+      <div class="step"><span class="num">1</span><div><h4>建立校服模板</h4><p>上傳你學校嘅校服／體育服相，叫 AI 整成一套卡通模板（正面／側面／背面）。</p></div></div>
+      <div class="step green"><span class="num">2</span><div><h4>生成校園場景 + 角色</h4><p>用呢套模板，叫 AI 畫學生喺禮堂閱讀、打乒乓球等唔同活動，砌 PPT 角色。</p></div></div>
+      <div class="step"><span class="num">3</span><div><h4>切換風格</h4><p>想唔同風格（如 Pixar 大眼、水彩、平面），加一句風格描述即可。</p></div></div>
+      <div class="tip">💡 之後只需「講多幾個場景／動作」，AI 就會用同一套校服畫出更多角色，慳好多時間。</div>
+    </div>
+  </section>
+
+  <!-- 2. 校服模板 -->
+  <section id="uniform">
+    <h2>👕 校服模板製作</h2>
+    <p class="sect-sub">先建立一套可重用嘅校服，之後畫乜角色都一致</p>
+    <div class="grid two">
+      <div class="prompt-card">
+        <h4>夏季校服（背心裙）<span class="tag">夏季校服 1</span></h4>
+        <p class="dim">天藍色背心裙 + 襯衫短褲</p>
+        <div class="prompt-box" id="p-uniform1">請將呢兩張相建立為卡通版校服模板，包含正面、側面、背面三個視圖。\n夏季校服：天藍色背心裙配襯衫＋短褲；保留裙上腰間鈕扣細節、襯衫口袋刺繡；配黑皮鞋、白襪。整體係簡潔卡通線條，白色背景，方便放入 PPT。</div>
+        <button class="copy-btn" data-target="p-uniform1">📍 複製提示詞</button>
+      </div>
+      <div class="prompt-card">
+        <h4>夏季體育服（Polo）<span class="tag">夏季校服 2</span></h4>
+        <p class="dim">白色 Polo + 藏藍色短褲</p>
+        <div class="prompt-box" id="p-uniform2">請建立卡通版體育服模板，包含正面、側面、背面三個視圖。\n白色 Polo 衫（藏青色領口＋袖口邊緣）、藏青色短褲；上衣保留刺繡圖案；配白運動鞋、白襪；卡通風格，適合有活力嘅角色。</div>
+        <button class="copy-btn" data-target="p-uniform2">📍 複製提示詞</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 校園場景 -->
+  <section id="scene">
+    <h2>🏫 校園場景圖生成</h2>
+    <p class="sect-sub">用校服模板角色，代入唔同場景</p>
+    <div class="grid two">
+      <div class="prompt-card">
+        <h4>禮堂閱讀課外書</h4>
+        <div class="prompt-box" id="p-scene1">以剛才嘅校服卡通角色，生成一幅喺禮堂閱讀課外書本嘅圖。\n場景：寬敞禮堂，兩名學生專注睇書，背景係簡潔舞台，卡通風格。</div>
+        <button class="copy-btn" data-target="p-scene1">📍 複製提示詞</button>
+      </div>
+      <div class="prompt-card">
+        <h4>體育館打乒乓球</h4>
+        <div class="prompt-box" id="p-scene2">以剛才嘅校服卡通角色，生成一幅喺體育館打乒乓球嘅圖。\n場景：學校體育館，兩名學生進行乒乓球比賽，卡通風格。</div>
+        <button class="copy-btn" data-target="p-scene2">📍 複製提示詞</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 風格切換 -->
+  <section id="style">
+    <h2>🎨 風格切換</h2>
+    <p class="sect-sub">一句話轉換整體風格，角色／場景保持不變</p>
+    <div class="card">
+      <div class="prompt-card">
+        <h4>Pixar 3D 大眼風格 <span class="tag">PIXAR 大眼 MODE</span></h4>
+        <div class="prompt-box" id="p-style">請用 Pixar 式 3D 大眼風格重新繪製：圓潤大眼、表情靈動、燈光柔和、書本色彩繽紛、場景有卡通質感。保持原有校服同動作。</div>
+        <button class="copy-btn" data-target="p-style">📍 複製提示詞</button>
+      </div>
+      <h3 style="margin-top:26px;">其他常用風格字眼</h3>
+      <div class="grid three">
+        <div class="tool"><h4>🎈 3D 渲染</h4><p>3D render，立體、光影自然</p></div>
+        <div class="tool"><h4>✏️ 簡約平面</h4><p>flat design，線條簡單，適合唱 PPT 圖示</p></div>
+        <div class="tool"><h4>🎨 童書插畫</h4><p>children's book illustration，柔和可愛</p></div>
+      </div>
+      <div class="grid three">
+        <div class="tool"><h4>💧 水彩</h4><p>watercolor，文青柔和</p></div>
+        <div class="tool"><h4>✒️ 鉛筆線稿</h4><p>line art / 線稿，適合作業紙</p></div>
+        <div class="tool"><h4>👦 原創角色</h4><p>以同一套校服畫多個動作／表情</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 提示詞範本下載 -->
+  <section id="promptpack">
+    <h2>📥 提示詞範本下載</h2>
+    <p class="sect-sub">一份可複製貼上嘅完整 prompt 文件</p>
+    <div class="card">
+      <h3>校本圖像 Prompt Pack</h3>
+      <p class="dim">包含校服模板、場景、風格切換、角色變化所有提示詞，拎去逐段複製入 AI 就得。</p>
+      <div style="margin-top:16px;">
+        <a class="btn" href="docs/school-image-prompt-pack.txt" download>下載 Prompt Pack（.txt）</a>
+        <a class="btn ghost" href="#gallery">睇示範圖</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 示範圖庫 -->
+  <section id="gallery">
+    <h2>🖼 示範圖庫</h2>
+    <p class="sect-sub">今次工作坊用呢套流程做出嚟嘅示例</p>
+    <div class="gallery">
+      <figure>
+        <img src="assets/school-images/WhatsApp Image 2026-09-03 at 3.35.31 PM.jpeg" alt="原始校服相片（參考用）">
+        <figcaption>📷 原始校服／體育服相片 — 上傳畀 AI 做參考</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/school-images/WhatsApp Image 2026-09-03 at 3.37.55 PM.jpeg" alt="卡通校服模板示範">
+        <figcaption>👕 卡通校服模板 — AI 建立嘅正面／側面／背面模板</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/school-images/WhatsApp Image 2026-09-03 at 4.01.15 PM.jpeg" alt="禮堂閱讀場景示範">
+        <figcaption>🏫 校園場景 — 禮堂閱讀課外書</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/school-images/WhatsApp Image 2026-09-03 at 4.01.15 PM (1).jpeg" alt="乒乓球場景示範">
+        <figcaption>🏓 校園場景 — 體育館打乒乓球</figcaption>
+      </figure>
+    </div>
+    <p class="dim" style="margin-top:10px;">註：實際配圖請按你上傳嘅相片內容核對；上面係使用同一套流程嘅示例。</p>
+  </section>
+
+</main>
+
+<footer>
+  校本圖像製作 · 教師教學<br>校服模板 → 校園場景 → 卡通角色 → PPT
+</footer>
+
+<script>
+  (function () {
+    var btns = document.querySelectorAll('.copy-btn');
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-target');
+        var box = document.getElementById(id);
+        var text = box.innerText.replace(/\\n/g, '\n');
+        function done() {
+          var old = btn.textContent;
+          btn.textContent = '✔ 已複製';
+          setTimeout(function () { btn.textContent = old; }, 1500);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta); done();
+        }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
